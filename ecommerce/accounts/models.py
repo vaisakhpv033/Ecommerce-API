@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.core.validators import RegexValidator
 from django.db import models
+from .validators import name_validator, phone_number_validator, username_validator
 
 
 class UserManager(BaseUserManager):
@@ -83,14 +83,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-# validators
-username_validator = RegexValidator(
-    r"^[a-zA-Z0-9_]+$", "Usernames can only contain letters, numbers and underscores."
-)
 
-name_validator = RegexValidator(
-    r"^[a-zA-Z\s]+$", "Enter a Valid name (Only alphabets and spaces)"
-)
 
 
 class User(AbstractBaseUser):
@@ -102,7 +95,7 @@ class User(AbstractBaseUser):
         max_length=50, unique=True, validators=[username_validator]
     )
     email = models.EmailField(max_length=100, unique=True)
-    phone_number = models.CharField(max_length=12, blank=True, null=True)
+    phone_number = models.CharField(max_length=12, blank=True, null=True, validators=[phone_number_validator])
     profile_picture = models.URLField(blank=True, null=True)
 
     date_joined = models.DateTimeField(auto_now_add=True)
