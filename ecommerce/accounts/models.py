@@ -84,8 +84,6 @@ class UserManager(BaseUserManager):
 
 
 
-
-
 class User(AbstractBaseUser):
     """Custom User model that uses email as the unique identifier."""
 
