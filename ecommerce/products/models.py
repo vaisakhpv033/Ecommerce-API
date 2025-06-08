@@ -1,4 +1,5 @@
 from django.db import models
+from .validators import price_validator
 
 # Create your models here.
 class Products(models.Model):
@@ -20,7 +21,7 @@ class Products(models.Model):
     product_title = models.CharField(max_length=255)
     product_subtitle = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[price_validator])
     image = models.URLField(blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
     is_available = models.BooleanField(default=True)
