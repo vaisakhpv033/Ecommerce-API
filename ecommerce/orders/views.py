@@ -1,9 +1,12 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from cart.models import Addresses, Cart
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from .models import Order, OrderItem
+from .serializers import OrderSerializer, OrderItemUpdateSerializer, OrderItemSerializer
+from .permissions import IsAdminOrReadOnlyForOwner
 
 # Create your views here.
 class CreateOrderView(APIView):
@@ -80,3 +83,44 @@ class CreateOrderView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
+
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnlyForOwner]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=user)
+    
+    def perform_create(self, serializer):
+        """
+        Save the order with the user as the creator.
+        """
+        return Response({"error": "Creating orders is not allowed through this endpoint."}, status=403)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({"error": "You are not allowed to update orders."}, status=403)
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response({"error": "Deleting orders is not allowed."}, status=403)
+    
+
+
+class OrderItemListView(ListAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+    permission_classes = [IsAdminUser]
+
+class OrderItemUpdateView(UpdateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemUpdateSerializer
+    permission_classes = [IsAdminUser]
