@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Cart
-from .serializers import CartSerializer
+from .models import Cart, Addresses
+from .serializers import CartSerializer, AddressSerializer
 
 # Create your views here.
 class CartViewSet(viewsets.ModelViewSet):
@@ -57,3 +57,14 @@ class CartViewSet(viewsets.ModelViewSet):
         return Response(
             {"message": "Cart cleared successfully."}, status=status.HTTP_204_NO_CONTENT
         )
+
+
+class AddressesViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Addresses.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

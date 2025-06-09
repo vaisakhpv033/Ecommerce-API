@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart
+from .models import Cart, Addresses
 from products.models import Products
 
 class CartSerializer(serializers.ModelSerializer):
@@ -67,3 +67,15 @@ class CartSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Addresses model.
+    Provides user address details.
+    """
+    class Meta:
+        model = Addresses
+        fields = '__all__'
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
